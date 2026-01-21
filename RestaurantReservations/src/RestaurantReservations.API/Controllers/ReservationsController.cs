@@ -15,16 +15,14 @@ namespace RestaurantReservations.API.Controllers
             _reservationService = reservationService;
         }
 
-        // GET: api/reservations/status
         [HttpGet("status")]
         public IActionResult GetStatus()
         {
             return Ok(new { status = "API is running", timestamp = DateTime.UtcNow });
         }
 
-        // GET: api/reservations
         [HttpGet]
-        public async Task<IActionResult> GetAllReservations([FromQuery] DateTime? date)
+        public async Task<ActionResult<IEnumerable<ReservationDto>>> GetReservations([FromQuery] DateTime? date = null)
         {
             if (date.HasValue)
             {
@@ -36,74 +34,61 @@ namespace RestaurantReservations.API.Controllers
             return Ok(allReservations);
         }
 
-        // GET: api/reservations/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetReservation(int id)
+        public async Task<ActionResult<ReservationDto>> GetReservation(int id)
         {
             var reservation = await _reservationService.GetReservationByIdAsync(id);
             if (reservation == null)
-            {
-                return NotFound($"Reserva com ID {id} não encontrada.");
-            }
-
+                return NotFound();
             return Ok(reservation);
         }
 
-        // POST: api/reservations
         [HttpPost]
-        public async Task<IActionResult> CreateReservation([FromBody] CreateReservationDto dto)
+        public async Task<ActionResult<ReservationDto>> CreateReservation(CreateReservationDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             try
             {
-                var createdReservation = await _reservationService.CreateReservationAsync(dto);
-                return CreatedAtAction(nameof(GetReservation), new { id = createdReservation.Id }, createdReservation);
+                var reservation = await _reservationService.CreateReservationAsync(dto);
+                return CreatedAtAction(nameof(GetReservation), new { id = reservation.Id }, reservation);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
-                return Conflict(new { error = ex.Message });
+                return Conflict(ex.Message);
             }
         }
 
-        // PUT: api/reservations/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateReservation(int id, [FromBody] UpdateReservationDto dto)
+        public async Task<ActionResult<ReservationDto>> UpdateReservation(int id, UpdateReservationDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             try
             {
                 var updatedReservation = await _reservationService.UpdateReservationAsync(id, dto);
+                
                 if (updatedReservation == null)
-                {
-                    return NotFound($"Reserva com ID {id} não encontrada.");
-                }
-
+                    return NotFound();
+                    
                 return Ok(updatedReservation);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
-                return Conflict(new { error = ex.Message });
+                return Conflict(ex.Message);
             }
         }
 
-        // DELETE: api/reservations/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReservation(int id)
         {
             var result = await _reservationService.DeleteReservationAsync(id);
             if (!result)
-            {
-                return NotFound($"Reserva com ID {id} não encontrada.");
-            }
-
+                return NotFound();
             return NoContent();
         }
     }

@@ -49,7 +49,10 @@ namespace RestaurantReservations.API.Services
 
         public async Task<ReservationDto> CreateReservationAsync(CreateReservationDto dto)
         {
-            // Verificar conflito de horário
+            // VALIDAÇÃO 1: Não permitir reservas no passado
+            ValidateFutureReservation(dto.ReservationDate, dto.ReservationTime);
+
+            // VALIDAÇÃO 2: Verificar conflito de horário
             if (await HasTimeConflictAsync(dto.TableNumber, dto.ReservationDate, dto.ReservationTime))
             {
                 throw new InvalidOperationException($"Mesa {dto.TableNumber} já está reservada para {dto.ReservationDate:d} às {dto.ReservationTime:hh\\:mm}");
@@ -82,19 +85,25 @@ namespace RestaurantReservations.API.Services
             var newTime = dto.ReservationTime ?? reservation.ReservationTime;
             var newTable = dto.TableNumber ?? reservation.TableNumber;
 
-            // 3. Verificar se está mudando dados críticos
+            // 3. VALIDAÇÃO: Não permitir atualizar para data/hora no passado
+            if (dto.ReservationDate.HasValue || dto.ReservationTime.HasValue)
+            {
+                ValidateFutureReservation(newDate, newTime);
+            }
+
+            // 4. Verificar se está mudando dados críticos
             var isChangingCriticalInfo = 
                 newTable != reservation.TableNumber || 
                 newDate != reservation.ReservationDate || 
                 newTime != reservation.ReservationTime;
 
-            // 4. Só verificar conflito se estiver mudando mesa, data ou hora
+            // 5. Só verificar conflito se estiver mudando mesa, data ou hora
             if (isChangingCriticalInfo && await HasTimeConflictAsync(newTable, newDate, newTime, id))
             {
                 throw new InvalidOperationException($"Mesa {newTable} já está reservada para {newDate:d} às {newTime:hh\\:mm}");
             }
 
-            // 5. Atualizar propriedades se fornecidas
+            // 6. Atualizar propriedades se fornecidas
             if (dto.CustomerName != null) reservation.CustomerName = dto.CustomerName;
             if (dto.ReservationDate.HasValue) reservation.ReservationDate = dto.ReservationDate.Value;
             if (dto.ReservationTime.HasValue) reservation.ReservationTime = dto.ReservationTime.Value;
@@ -128,6 +137,25 @@ namespace RestaurantReservations.API.Services
             }
 
             return await query.AnyAsync();
+        }
+
+        // MÉTODO PRIVADO PARA VALIDAR DATAS FUTURAS
+        private void ValidateFutureReservation(DateTime date, TimeSpan time)
+        {
+            var reservationDateTime = new DateTime(
+                date.Year,
+                date.Month,
+                date.Day,
+                time.Hours,
+                time.Minutes,
+                0);
+
+            var currentDateTime = DateTime.Now;
+
+            if (reservationDateTime <= currentDateTime)
+            {
+                throw new ArgumentException("A data e hora da reserva devem ser no futuro");
+            }
         }
 
         private ReservationDto MapToDto(Reservation reservation)
