@@ -1,0 +1,6 @@
+apiVersion: v2
+name: restaurant-api
+description: A REST API for restaurant reservations
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

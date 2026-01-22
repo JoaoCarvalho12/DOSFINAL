@@ -1,0 +1,126 @@
+# ============ .NET ============
+## Build outputs - ADICIONA ESTAS LINHAS NO TOPO
+[Bb]in/
+[Oo]bj/
+**/[Bb]in/
+**/[Oo]bj/
+**/bin/
+**/obj/
+**/Debug/
+**/Release/
+
+## Compilation artifacts
+*.dll
+*.exe
+*.pdb
+*.cache
+*.deps.json
+*.runtimeconfig.json
+
+## User-specific files
+*.user
+*.suo
+*.userprefs
+*.[Cc]ache
+
+# ============ IDE ============
+## Visual Studio
+.vs/
+*.sln.iml
+
+## Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+## Rider
+.idea/
+*.iml
+
+# ============ TESTES ============
+[Tt]est[Rr]esults/
+*.trx
+*.coverage
+.coverage/
+*.Test.xml
+*.coverage.xml
+
+# ============ PACOTES ============
+packages/
+*.nupkg
+.nuget/
+nuget.config.local
+
+# ============ DOCKER ============
+.docker/
+docker-compose.override.yml
+
+# ============ SISTEMA ============
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# ============ CONFIGURAÇÕES LOCAIS ============
+## Development configuration files
+appsettings.Development.json
+appsettings.local.json
+appsettings.*.json
+!appsettings.json
+
+## Local databases
+*.db
+*.db-shm
+*.db-wal
+
+## Secrets and environment files
+.env
+.env.local
+*.secrets.json
+secrets.json
+
+## Local certificates
+*.pfx
+*.p12
+
+# ============ LOGS ============
+*.log
+logs/
+Logs/
+
+# ============ TEMP FILES ============
+*.tmp
+*.temp
+[Tt]emp/
+[Tt]mp/
+
+# ============ NÃO IGNORAR (!) ============
+## Important project files
+!*.sln
+!**/*.csproj
+!**/*.fsproj
+!**/*.vbproj
+
+## Configuration files
+!**/appsettings.json
+!.editorconfig
+!.gitattributes
+
+## Documentation
+!**/*.md
+!**/README.md
+!LICENSE
+!CONTRIBUTING.md
+!CHANGELOG.md
+
+## Docker files
+!Dockerfile
+!docker-compose.yml
+!.dockerignore
+
+## Build scripts
+!build/
+!build/*
+!scripts/
+!scripts/*

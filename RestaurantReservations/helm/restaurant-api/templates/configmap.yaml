@@ -1,0 +1,17 @@
+{{- if .Values.config }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "restaurant-api.fullname" . }}-config
+  labels:
+    {{- include "restaurant-api.labels" . | nindent 4 }}
+data:
+  appsettings.json: |
+    {
+      "Logging": {
+        "LogLevel": {
+          "Default": "{{ .Values.config.logLevel }}"
+        }
+      }
+    }
+{{- end }}

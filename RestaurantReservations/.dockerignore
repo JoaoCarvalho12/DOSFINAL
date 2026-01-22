@@ -1,0 +1,43 @@
+# Ignorar pastas de build e dependências do .NET
+**/[Bb]in/
+**/[Oo]bj/
+**/.vs/
+**/.vscode/
+
+# Ignorar ficheiros de utilizador e configuração local
+*.user
+*.suo
+*.userprefs
+
+# Ignorar ficheiros de log e diagnósticos
+*.[Ll]og
+[Dd]ebug/
+[Rr]elease/
+
+# Ignorar ficheiros do npm (se aplicável)
+node_modules/
+npm-debug.log
+
+# Ignorar ficheiros de cobertura de testes
+**/.coverage
+**/coverage.*
+**/TestResults/
+
+# Ignorar ficheiros do Git
+.git/
+.gitignore
+
+# Ignorar ficheiros de documentação e vários
+**/*.md
+.dockerignore
+Dockerfile*
+docker-compose*
+**/.env
+**/.editorconfig
+**/.toolstarget
+
+# Não ignorar ficheiros de solução e projeto .NET!
+#!*.sln
+#!**/*.csproj
+#!**/appsettings.json
+#!**/appsettings.*.json
