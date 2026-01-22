@@ -1,0 +1,58 @@
+# Valores padrão para o chart
+
+replicaCount: 2
+
+image:
+  repository: yourusername/restaurant-reservations-api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: restaurant.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+probes:
+  liveness:
+    path: /api/reservations/status
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  readiness:
+    path: /api/reservations/status
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+database:
+  host: "sqlserver"
+  name: "RestaurantReservationsDB"
+  username: "sa"
+  password: "YourStrong@Passw0rd"
+
+config:
+  environment: "Production"
+  logLevel: "Information"

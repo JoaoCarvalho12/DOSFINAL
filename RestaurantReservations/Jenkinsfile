@@ -1,0 +1,130 @@
+pipeline {
+    agent any
+
+    tools {
+        dotnet 'dotnet-9'
+    }
+
+    environment {
+        // Variáveis para configuração (ajustar conforme necessário)
+        DOCKER_REGISTRY = 'https://index.docker.io/v1/'
+        DOCKER_IMAGE = 'yourusername/restaurant-reservations-api'
+        KUBE_NAMESPACE = 'restaurant'
+        HELM_CHART_PATH = './helm/restaurant-api'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Restore') {
+            steps {
+                sh 'dotnet restore RestaurantReservations.sln'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'dotnet build RestaurantReservations.sln --configuration Release --no-restore'    
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh '''
+                dotnet test tests/RestaurantReservations.UnitTests/RestaurantReservations.UnitTests.csproj \
+                    --configuration Release \
+                    --no-build \
+                    --collect:"XPlat Code Coverage" \
+                    --logger "trx;LogFileName=test-results.trx"
+                '''
+            }
+            post {
+                always {
+                    junit 'TestResults/*.trx'
+                    // Preserva relatórios de cobertura para SonarQube
+                    archiveArtifacts 'TestResults/**/coverage.cobertura.xml'
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube-Server') {
+                    sh '''
+                    dotnet sonarscanner begin \
+                        /k:"RestaurantReservations" \
+                        /d:sonar.host.url="${SONAR_HOST_URL}" \
+                        /d:sonar.login="${SONAR_TOKEN}" \
+                        /d:sonar.cs.vstest.reportsPaths="TestResults/*.trx" \
+                        /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml"
+                    
+                    dotnet build RestaurantReservations.sln --configuration Release
+                    
+                    dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
+                    '''
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}", "-f src/RestaurantReservations.API/Dockerfile .")
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry(DOCKER_REGISTRY, 'dockerhub-credentials') {
+                        docker.image("${DOCKER_IMAGE}:${env.BUILD_ID}").push()
+                        docker.image("${DOCKER_IMAGE}:${env.BUILD_ID}").push('latest')
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([string(credentialsId: 'db-password', variable: 'DB_PASSWORD')]) {
+                    sh """
+                    helm upgrade --install restaurant-api ${HELM_CHART_PATH} \
+                        --namespace ${KUBE_NAMESPACE} \
+                        --set image.repository=${DOCKER_IMAGE} \
+                        --set image.tag=${env.BUILD_ID} \
+                        --set database.password=${DB_PASSWORD} \
+                        --atomic \
+                        --timeout 5m
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline executado com sucesso!'
+            echo "Imagem: ${DOCKER_IMAGE}:${env.BUILD_ID}"
+            echo "Deployment no namespace: ${KUBE_NAMESPACE}"
+        }
+        failure {
+            echo 'Pipeline falhou!'
+        }
+        always {
+            cleanWs()  // Limpa workspace
+        }
+    }
+}
