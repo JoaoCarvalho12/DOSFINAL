@@ -1,0 +1,46 @@
+
+Estrutura do Projeto:
+
+RestaurantReservations/                           # Pasta raiz da solução
+├── RestaurantReservations.sln                    # Solução .NET
+├── .dockerignore                                 # Ignora ficheiros no build Docker
+├── docker-compose.yml                            # Orquestração: API + SQL Server
+├── Dockerfile                                    # Build multi-stage da imagem da API
+├── Jenkinsfile                                   # Pipeline CI/CD completo (8 stages)
+├── sonar-project.properties                      # Configuração do SonarQube
+│
+├── src/                                          # Código-fonte da aplicação
+│   └── RestaurantReservations.API/
+│       ├── Controllers/                          # Controladores da API (ReservationsController)
+│       ├── Data/                                 # DbContext e Migrações do Entity Framework
+│       ├── DTOs/                                 # Data Transfer Objects
+│       ├── Models/                               # Modelos de domínio (Reservation)
+│       ├── Program.cs                            # Ponto de entrada e configuração
+│       ├── Properties/                           # Configurações de launch
+│       ├── Services/                             # Lógica de negócio (ReservationService)
+│       └── appsettings.json                      # Configurações da aplicação
+│
+├── tests/                                        # Projetos de teste
+│   └── RestaurantReservations.UnitTests/
+│       ├── Controllers/ReservationsControllerTests.cs
+│       ├── Models/ReservationTests.cs
+│       ├── DTOs/ReservationDtoTests.cs
+│       ├── Services/ReservationServiceTests.cs
+│       └── RestaurantReservations.UnitTests.csproj
+│
+└── helm/                                         # Configuração de deployment Kubernetes
+    └── restaurant-api/
+        ├── Chart.yaml                            # Metadados do Helm Chart
+        ├── values.yaml                           # Valores configuráveis (replicas, image, etc.)
+        └── templates/                            # Templates Kubernetes
+            ├── deployment.yaml                   # Especificação do Deployment
+            ├── service.yaml                      # Especificação do Service
+            ├── configmap.yaml                    # Configurações da aplicação
+            └── _helpers.tpl                      # Funções de template auxiliares
+			
+			
+			
+			
+			
+			
+			

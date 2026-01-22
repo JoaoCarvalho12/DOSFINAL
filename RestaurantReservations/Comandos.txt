@@ -1,0 +1,52 @@
+cd ../..
+
+Para executar a API:
+
+cd C:\Users\utilizador\Documents\CTESP\3semestre\Trabalho_DOS\Projeto_DOS\RestaurantReservations
+docker-compose down
+docker-compose up --build -d
+
+cd "C:\Users\utilizador\Documents\CTESP\3semestre\Trabalho_DOS\Projeto_DOS\RestaurantReservations\src\RestaurantReservations.API"
+ou cd src/RestaurantReservations.API
+dotnet run
+
+Acessar Desenvolvimento: http://localhost:5188/swagger
+Acessar Produção: http://localhost:5000/swagger
+
+Para executar testes:
+
+cd "C:\Users\utilizador\Documents\CTESP\3semestre\Trabalho_DOS\Projeto_DOS\RestaurantReservations\tests\RestaurantReservations.UnitTests"
+ou cd ../../tests/RestaurantReservations.UnitTests
+dotnet test --collect:"XPlat Code Coverage"
+
+Para verificar Docker:
+cd "C:\Users\utilizador\Documents\CTESP\3semestre\Trabalho_DOS\Projeto_DOS\RestaurantReservations"
+ou cd src/RestaurantReservations.API
+docker-compose up -d sqlserver
+
+
+json para POST no Swagger UI:
+
+{
+  "customerName": "Pedro Morgado",
+  "reservationDate": "2026-01-15T00:00:00",
+  "reservationTime": "19:30:00",
+  "tableNumber": 5,
+  "numberOfPeople": 4
+}
+
+{
+  "customerName": "Miguel Ramos",
+  "reservationDate": "2026-01-16T00:00:00",
+  "reservationTime": "20:00:00",
+  "tableNumber": 3,
+  "numberOfPeople": 2
+}
+
+{
+  "customerName": "Vitor Armando",
+  "reservationDate": "2026-01-18T00:00:00",
+  "reservationTime": "13:00:00",
+  "tableNumber": 8,
+  "numberOfPeople": 6
+}
