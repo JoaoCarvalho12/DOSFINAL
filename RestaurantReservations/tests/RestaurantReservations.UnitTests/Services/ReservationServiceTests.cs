@@ -86,7 +86,7 @@ namespace RestaurantReservations.UnitTests.Services
             var dto = new CreateReservationDto
             {
                 CustomerName = "Test",
-                ReservationDate = DateTime.Today,
+                ReservationDate = DateTime.Today.AddDays(1),
                 ReservationTime = TimeSpan.FromHours(12),
                 TableNumber = 2,
                 NumberOfPeople = 2
